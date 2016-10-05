@@ -25,10 +25,9 @@ class BaseInvitationsAdapter(object):
         request.session['account_verified_email'] = None
         return ret
 
-    def format_email_subject(self, subject):
+    def format_email_subject(self, subject, site):
         prefix = app_settings.EMAIL_SUBJECT_PREFIX
         if prefix is None:
-            site = Site.objects.get_current()
             prefix = "[{name}] ".format(name=site.name)
         return prefix + force_text(subject)
 
@@ -39,9 +38,10 @@ class BaseInvitationsAdapter(object):
         """
         subject = render_to_string('{0}_subject.txt'.format(template_prefix),
                                    context)
+
         # remove superfluous line breaks
         subject = " ".join(subject.splitlines()).strip()
-        subject = self.format_email_subject(subject)
+        subject = self.format_email_subject(subject, context['site'])
 
         bodies = {}
         for ext in ['html', 'txt']:
